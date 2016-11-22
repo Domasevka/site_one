@@ -1,3 +1,5 @@
+'use strict';
+
 var gulp = require('gulp'),
     watch = require('gulp-watch'),
     prefixer = require('gulp-autoprefixer'),
@@ -9,8 +11,9 @@ var gulp = require('gulp'),
     imagemin = require('gulp-imagemin'),
     pngquant = require('imagemin-pngquant'),
     rimraf = require('rimraf'),
-    browserSync = require("browser-sync"),
+	browserSync = require("browser-sync"),
     reload = browserSync.reload;
+	
 var path = {
     build: { //Тут мы укажем куда складывать готовые после сборки файлы
         html: 'build/',
@@ -35,6 +38,7 @@ var path = {
     },
     clean: './build'
 };
+
 var config = {
     server: {
         baseDir: "./build"
@@ -44,12 +48,22 @@ var config = {
     port: 9000,
     logPrefix: "Frontend_Devil"
 };
+
+gulp.task('webserver', function () {
+    browserSync(config);
+});
+
+gulp.task('clean', function (cb) {
+    rimraf(path.clean, cb);
+});
+
 gulp.task('html:build', function () {
     gulp.src(path.src.html) //Выберем файлы по нужному пути
         .pipe(rigger()) //Прогоним через rigger
         .pipe(gulp.dest(path.build.html)) //Выплюнем их в папку build
         .pipe(reload({stream: true})); //И перезагрузим наш сервер для обновлений
 });
+
 gulp.task('js:build', function () {
     gulp.src(path.src.js) //Найдем наш main файл
         .pipe(rigger()) //Прогоним через rigger
@@ -59,16 +73,23 @@ gulp.task('js:build', function () {
         .pipe(gulp.dest(path.build.js)) //Выплюнем готовый файл в build
         .pipe(reload({stream: true})); //И перезагрузим сервер
 });
+
 gulp.task('style:build', function () {
     gulp.src(path.src.style) //Выберем наш main.scss
         .pipe(sourcemaps.init()) //То же самое что и с js
-        .pipe(sass()) //Скомпилируем
+        .pipe(sass({
+            includePaths: ['src/style/'],
+            outputStyle: 'compressed',
+            sourceMap: true,
+            errLogToConsole: true
+         })) //Скомпилируем
         .pipe(prefixer()) //Добавим вендорные префиксы
         .pipe(cssmin()) //Сожмем
         .pipe(sourcemaps.write())
         .pipe(gulp.dest(path.build.css)) //И в build
         .pipe(reload({stream: true}));
 });
+
 gulp.task('image:build', function () {
     gulp.src(path.src.img) //Выберем наши картинки
         .pipe(imagemin({ //Сожмем их
@@ -80,10 +101,12 @@ gulp.task('image:build', function () {
         .pipe(gulp.dest(path.build.img)) //И бросим в build
         .pipe(reload({stream: true}));
 });
+
 gulp.task('fonts:build', function() {
     gulp.src(path.src.fonts)
         .pipe(gulp.dest(path.build.fonts))
 });
+
 gulp.task('build', [
     'html:build',
     'js:build',
@@ -91,6 +114,7 @@ gulp.task('build', [
     'fonts:build',
     'image:build'
 ]);
+
 gulp.task('watch', function(){
     watch([path.watch.html], function(event, cb) {
         gulp.start('html:build');
@@ -108,10 +132,5 @@ gulp.task('watch', function(){
         gulp.start('fonts:build');
     });
 });
-gulp.task('webserver', function () {
-    browserSync(config);
-});
-gulp.task('clean', function (cb) {
-    rimraf(path.clean, cb);
-});
+
 gulp.task('default', ['build', 'webserver', 'watch']);
