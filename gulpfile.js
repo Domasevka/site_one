@@ -79,7 +79,7 @@ gulp.task('style:build', function () {
         .pipe(sourcemaps.init()) //То же самое что и с js
         .pipe(sass({
             includePaths: ['src/style/'],
-            outputStyle: 'compressed',
+			outputStyle: 'compressed',
             sourceMap: true,
             errLogToConsole: true
          })) //Скомпилируем
@@ -89,6 +89,7 @@ gulp.task('style:build', function () {
         .pipe(gulp.dest(path.build.css)) //И в build
         .pipe(reload({stream: true}));
 });
+
 
 gulp.task('image:build', function () {
     gulp.src(path.src.img) //Выберем наши картинки

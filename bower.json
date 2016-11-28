@@ -14,8 +14,7 @@
   ],
   "dependencies": {
     "normalize.css": "*",
-	"_susy.scss": "*",
-	"_breakpoint.scss": "*",
-    "jquery": "2.*"
+    "jquery": "2.*",
+    "susy": "^2.2.12"
   }
 }
